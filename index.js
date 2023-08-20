@@ -35,6 +35,8 @@ class Player {
     this.velocity = velocity;
     this.radius = 15;
   }
+
+  // Method to draw the player on the canvas
   draw() {
     c.beginPath();
     c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2);
@@ -42,16 +44,14 @@ class Player {
     c.fill();
     c.closePath();
   }
-}
 
-// A map representing the layout of the boundaries
-const map = [
-  ["-", "-", "-", "-", "-", "-", "-"],
-  ["-", " ", " ", " ", " ", " ", "-"],
-  ["-", " ", " ", "-", " ", " ", "-"],
-  ["-", " ", " ", " ", " ", " ", "-"],
-  ["-", "-", "-", "-", "-", "-", "-"],
-];
+  // Method to update the player's position and redraw it
+  update() {
+    this.draw();
+    this.position.x += this.velocity.x;
+    this.position.y += this.velocity.y;
+  }
+}
 
 // An array to store boundary objects
 const boundaries = [];
@@ -64,6 +64,25 @@ const player = new Player({
   },
   velocity: { x: 0, y: 0 },
 });
+
+// Object to keep track of pressed keys
+const keys = {
+  w: { pressed: false },
+  a: { pressed: false },
+  s: { pressed: false },
+  d: { pressed: false },
+};
+
+let lastkey = '';
+
+// A map representing the layout of the boundaries
+const map = [
+  ["-", "-", "-", "-", "-", "-", "-"],
+  ["-", " ", " ", " ", " ", " ", "-"],
+  ["-", " ", " ", "-", " ", " ", "-"],
+  ["-", " ", " ", " ", " ", " ", "-"],
+  ["-", "-", "-", "-", "-", "-", "-"],
+];
 
 // Looping through the map to create boundaries
 map.forEach((row, i) => {
@@ -84,10 +103,71 @@ map.forEach((row, i) => {
   });
 });
 
-// Drawing all the boundary objects on the canvas
-boundaries.forEach((boundary) => {
-  boundary.draw();
+// Animation loop
+function animate() {
+  requestAnimationFrame(animate);
+  c.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Drawing all the boundary objects on the canvas
+  boundaries.forEach((boundary) => {
+    boundary.draw();
+  });
+
+  // Updating player's position and velocity based on pressed keys
+  player.update();
+  player.velocity.y = 0;
+  player.velocity.x = 0;
+
+  if (keys.w.pressed && lastkey === 'w') {
+    player.velocity.y = -5;
+  } else if (keys.a.pressed && lastkey === 'a') {
+    player.velocity.x = -5;
+  } else if (keys.s.pressed && lastkey === 's') {
+    player.velocity.y = 5;
+  } else if (keys.d.pressed && lastkey === 'd') {
+    player.velocity.x = 5;
+  }
+}
+
+// Starting the animation loop
+animate();
+
+// Event listener for keydown events
+addEventListener("keydown", ({ key }) => {
+  switch (key) {
+    case "w":
+      keys.w.pressed = true;
+      lastkey = 'w';
+      break;
+    case "a":
+      keys.a.pressed = true;
+      lastkey = 'a';
+      break;
+    case "s":
+      keys.s.pressed = true;
+      lastkey = 's';
+      break;
+    case "d":
+      keys.d.pressed = true;
+      lastkey = 'd';
+      break;
+  }
 });
 
-// Drawing the player on the canvas
-player.draw();
+// Event listener for keyup events
+addEventListener("keyup", ({ key }) => {
+  switch (key) {
+    case "w":
+      keys.w.pressed = false;
+      break;
+    case "a":
+      keys.a.pressed = false;
+      break;
+    case "s":
+      keys.s.pressed = false;
+      break;
+    case "d":
+      keys.d.pressed = false;
+      break;
+  }
+});
